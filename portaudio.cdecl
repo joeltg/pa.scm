@@ -1,0 +1,260 @@
+
+;; Versions
+(extern int Pa_GetVersion)
+(extern (* (const char)) Pa_GetVersionText)
+
+; (typedef PaVersionInfo
+;   (struct PaVersionInfo
+;     (versionMajor int)
+;     (versionMinor int)
+;     (versionSubMinor int)
+;     (versionControlRevision (* (const char)))
+;     (versionText (* (const char)))))
+
+; (extern (* (const PaVersionInfo)) Pa_GetVersionInfo
+;   (_ void))
+
+(typedef PaError int)
+
+; (extern ulong itl
+;   (i int))
+
+(typedef PaErrorCode
+  (enum PaErrorCode
+    (paNoError)
+    (paNotInitialized)
+    (paUnanticipatedHostError)
+    (paInvalidChannelCount)
+    (paInvalidSampleRate)
+    (paInvalidDevice)
+    (paInvalidFlag)
+    (paSampleFormatNotSupported)
+    (paBadIODeviceCombination)
+    (paInsufficientMemory)
+    (paBufferTooBig)
+    (paBufferTooSmall)
+    (paNullCallback)
+    (paBadStreamPtr)
+    (paTimedOut)
+    (paInternalError)
+    (paDeviceUnavailable)
+    (paIncompatibleHostApiSpecificStreamInfo)
+    (paStreamIsStopped)
+    (paStreamIsNotStopped)
+    (paInputOverflowed)
+    (paOutputUnderflowed)
+    (paHostApiNotFound)
+    (paInvalidHostApi)
+    (paCanNotReadFromACallbackStream)
+    (paCanNotWriteToACallbackStream)
+    (paCanNotReadFromAnOutputOnlyStream)
+    (paCanNotWriteToAnInputOnlyStream)
+    (paIncompatibleStreamHostApi)
+    (paBadBufferPtr)))
+
+(extern (* (const char))
+  Pa_GetErrorText
+  (errorCode PaError))
+
+(extern PaError Pa_Initialize)
+(extern PaError Pa_Terminate)
+
+(typedef PaDeviceIndex int)
+(typedef PaHostApiIndex int)
+
+(extern PaHostApiIndex Pa_GetHostApiCount)
+(extern PaHostApiIndex Pa_GetDefaultHostApi)
+
+(typedef PaHostApiTypeId
+  (enum PaHostApiTypeId
+    (paInDevelopment)
+    (paDirectSound)
+    (paMME)
+    (paASIO)
+    (paSoundManager)
+    (paCoreAudio)
+    (paOSS)
+    (paALSA)
+    (paAL)
+    (paBeOS)
+    (paWDMKS)
+    (paJACK)
+    (paWASAPI)
+    (paAudioScienceHPI)))
+
+(typedef PaHostApiInfo
+  (struct PaHostApiInfo
+    (structVersion int)
+    (type PaHostApiTypeId)
+    (name (* (const char)))
+    (deviceCount int)
+    (defaultInputDevice PaDeviceIndex)
+    (defaultOutputDevice PaDeviceIndex)))
+
+(extern (* (const PaHostApiInfo))
+  Pa_GetHostApiInfo
+  (hostApi PaHostApiIndex))
+
+(extern PaHostApiIndex
+  Pa_HostApiTypeIdToHostApiIndex
+  (type PaHostApiTypeId))
+
+(extern PaDeviceIndex
+  Pa_HostApiDeviceIndexToDeviceIndex
+  (hostApi PaHostApiIndex)
+  (hostApiDeviceIndex int))
+
+(typedef PaHostErrorInfo
+  (struct PaHostErrorInfo
+    (hostApiType PaHostApiTypeId)
+    (errorCode long)
+    (errorText (* (const char)))))
+
+(extern (* (const PaHostErrorInfo)) Pa_GetLastHostErrorInfo)
+
+(extern PaDeviceIndex Pa_GetDeviceCount)
+(extern PaDeviceIndex Pa_GetDefaultInputDevice)
+(extern PaDeviceIndex Pa_GetDefaultOutputDevice)
+
+(typedef PaTime double)
+(typedef PaSampleFormat ulong)
+(typedef PaDeviceInfo
+  (struct PaDeviceInfo
+    (structVersion int)
+    (name (* (const char)))
+    (hostApi PaHostApiIndex)
+    (maxInputChannels int)
+    (maxOutputChannels int)
+    (defaultLowInputLatency PaTime)
+    (defaultLowOutputLatency PaTime)
+    (defaultHighInputLatency PaTime)
+    (defaultHighOutputLatency PaTime)
+    (defaultSampleRate double)))
+
+(extern (* (const PaDeviceIndex))
+  Pa_GetDeviceInfo
+  (device PaDeviceIndex))
+
+(typedef PaStreamParameters
+  (struct PaStreamParameters
+    (device PaDeviceIndex)
+    (channelCount int)
+    (sampleFormat PaSampleFormat)
+    (suggestedLatency PaTime)
+    (hostApiSpecificStreamInfo (* void))))
+  
+(extern PaError
+  Pa_IsFormatSupported
+  (inputParameters (* (const PaStreamParameters)))
+  (outputParameters (* (const PaStreamParameters)))
+  (sampleRate double))
+
+(typedef PaStream void)
+
+(typedef PaStreamFlags ulong)
+
+(typedef PaStreamCallbackTimeInfo
+  (struct PaStreamCallbackTimeInfo
+    (inputBufferAdcTime PaTime)
+    (currentTime PaTime)
+    (outputBufferDacTime PaTime)))
+
+(typedef PaStreamCallbackFlags ulong)
+
+(typedef PaStreamCallbackResult
+  (enum PaStreamCallbackResult
+    (paContinue)
+    (paComplete)
+    (paAbort)))
+
+(extern PaError
+  Pa_OpenStream
+  (stream (* (* PaStream)))
+  (inputParameters (* (const PaStreamParameters)))
+  (outputParameters (* (const PaStreamParameters)))
+  (sampleRate double)
+  (framesPerBuffer ulong)
+  (streamFlags PaStreamFlags)
+  (streamCallback (* PaStreamCallback))
+  (userData (* void)))
+  ; (CALLBACK (* PaStreamCallback))
+  ; (ID (* void)))
+
+(extern PaError
+  Pa_OpenDefaultStream
+  (stream (* (* PaStream)))
+  (numInputChannels int)
+  (numOutputChannels int)
+  (sampleFormat PaSampleFormat)
+  (sampleRate double)
+  (framesPerBuffer ulong)
+  (streamCallback (* PaStreamCallback))
+  (userData (* void)))
+  ; (CALLBACK (* PaStreamCallback))
+  ; (ID (* void)))
+
+;; Very Important
+; (callback void
+;   PaStreamFinishedCallback
+;   (ID (* void)))
+
+; (callback int
+;   PaStreamCallback
+;   (input (* (const void)))
+;   (output (* void))
+;   (frameCount ulong)
+;   (timeInfo (* (const PaStreamCallbackTimeInfo)))
+;   (statusFlags PaStreamCallbackFlags)
+;   (ID (* void)))
+
+(extern PaError Pa_StartStream (stream (* PaStream)))
+(extern PaError Pa_CloseStream (stream (* PaStream)))
+(extern PaError Pa_StopStream (stream (* PaStream)))
+(extern PaError Pa_AbortStream (stream (* PaStream)))
+(extern PaError Pa_IsStreamStopped (stream (* PaStream)))
+(extern PaError Pa_IsStreamActive (stream (* PaStream)))
+
+(typedef PaStreamInfo
+  (struct PaStreamInfo
+    (structVersion int)
+    (inputLatency PaTime)
+    (outputLatency PaTime)
+    (sampleRate double)))
+
+(extern (* (const PaStreamInfo))
+  Pa_GetStreamInfo
+  (stream (* PaStream)))
+
+(extern PaTime
+  Pa_GetStreamTime
+  (stream (* PaStream)))
+
+(extern double
+  Pa_GetStreamCpuLoad
+  (stream (* PaStream)))
+
+(extern PaError
+  Pa_ReadStream
+  (stream (* PaStream))
+  (buffer (* void))
+  (frames ulong))
+
+(extern PaError
+  Pa_WriteStream
+  (stream (* PaStream))
+  (buffer (* (const void)))
+  (frames ulong))
+
+(extern long
+  Pa_GetStreamReadAvailable
+  (stream (* PaStream)))
+
+(extern long
+  Pa_GetStreamWriteAvailable
+  (stream (* PaStream)))
+
+(extern PaError
+  Pa_GetSampleSize
+  (format PaSampleFormat))
+
+(extern void Pa_Sleep (msec long))

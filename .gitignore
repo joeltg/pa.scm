@@ -1,0 +1,9 @@
+portaudio-const
+portaudio-const.bin
+portaudio-const.c
+portaudio-const.o
+portaudio-const.scm
+portaudio-shim.c
+portaudio-shim.o
+portaudio-shim.so
+portaudio-types.bin
