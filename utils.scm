@@ -1,6 +1,8 @@
 (define env (the-environment))
 (define default? default-object?)
 
+(define (clip float)
+  (inexact->exact (ceiling float)))
 
 (define (print . args)
   (let ((string (open-output-string)))
