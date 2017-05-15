@@ -1,0 +1,27 @@
+(define default-coordinate-limits (list 0 -1.5 512 1.5))
+(define default-background-color "white")
+(define default-foreground-color "black")
+(define (get-right-limit win)
+  (call-with-values
+    (lambda ()
+      (graphics-coordinate-limits win))
+    (lambda (x-left y-bottom x-right y-top)
+      x-right)))
+
+(define (window)
+  (let ((win (make-graphics-device #f)))
+    (graphics-operation win 'set-background-color default-background-color)
+    (graphics-operation win 'set-foreground-color default-foreground-color)
+    (apply graphics-set-coordinate-limits win default-coordinate-limits)
+    win))
+
+(define (plot win wave #!optional color)
+  (let ((samples (wave-samples wave))
+        (limit (get-right-limit win)))
+    (graphics-operation win 'set-foreground-color 
+      (if (default? color) default-foreground-color color))
+    (let iter ((cycle samples) (i 0))
+      (graphics-draw-point win i (car cycle))
+      (if (< i limit)
+        (iter (cdr cycle) (+ i 1))
+        (graphics-operation win 'set-foreground-color default-foreground-color)))))

@@ -4,11 +4,56 @@
 (define (clip float)
   (inexact->exact (ceiling float)))
 
+(define (fapply f arg)
+  (f arg))
+
+(define (identity a)
+  a)
+
+(define (*2 a)
+  (* 2 a))
+
+(define ((compose . fs) arg)
+  (fold-right fapply arg fs))
+
+(define (find-min selector elements)
+  (assert (not (null? elements)))
+  (let iter ((elements (cdr elements)) 
+             (best elements) 
+             (best-score (selector (car elements))))
+    (if (pair? elements)
+    (let ((score (selector (car elements))))
+      (if (< score best-score)
+        (iter (cdr elements) elements score)
+        (iter (cdr elements) best best-score)))
+    (car best))))
+
+(define (find-max selector elements)
+  (assert (not (null? elements)))
+  (let iter ((elements (cdr elements)) 
+             (best elements) 
+             (best-score (selector (car elements))))
+    (if (pair? elements)
+    (let ((score (selector (car elements))))
+      (if (> score best-score)
+        (iter (cdr elements) elements score)
+        (iter (cdr elements) best best-score)))
+    (car best))))
+
 (define (print . args)
   (let ((string (open-output-string)))
     (for-each 
-      (lambda (arg) 
-        (write arg string) 
+      (lambda (arg)
+        (cond 
+          ((wave? arg)
+            (write-string "wave: " string)
+            (write (wave-frequency arg) string)
+            (write-char #\space string)
+            (write (list-head (wave-samples arg) 10) string))
+          ((circular-list? arg)
+            (write-string "circular: " string)
+            (write (list-head arg 10) string))
+          (else (write arg string)))
         (write-char #\space string))
       args)
     (write-string (get-output-string string))))
@@ -27,14 +72,6 @@
   (let ((pointer (malloc pointer-size `(* ,(alien/ctype alien)))))
     (c-poke-pointer pointer alien)
     pointer))
-
-(define (index alien offset)
-  (alien-byte-increment alien offset (alien/ctype alien)))
-
-(define (integer->alien integer)
-  (let ((alien (malloc (c-sizeof "int") 'int)))
-    (c->= alien "int" integer)
-    alien))
 
 (define pi (* 2 (acos 0)))
 (define tau (* 4 (acos 0)))

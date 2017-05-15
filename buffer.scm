@@ -14,8 +14,8 @@
   (clip (/ (* seconds sample-rate) frames-per-buffer)))
 
 (define ((write-wave-channel! buffer frame) wave channel)
-  (c->= (buffer-ref buffer frame channel) "float" (car wave))
-  (cdr wave))
+  (c->= (buffer-ref buffer frame channel) "float" (wave-sample wave))
+  (wave-next wave))
 
 (define ((write-wave-frame! buffer) waves frame)
   (map
@@ -29,9 +29,9 @@
     waves
     frame-iterator))
 
-(define (play stream waves seconds)
+(define (play waves seconds)
   (let loop ((buffer (make-buffer))
-             (waves waves)
+             (waves (if (wave? waves) (make-list output-channel-count waves) waves))
              (buffers (seconds->buffers seconds)))
     (write-stream stream buffer)
     (if (< 0 buffers)

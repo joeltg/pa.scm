@@ -6,13 +6,15 @@
 (load "stream")
 (load "wave")
 (load "buffer")
-
-(define table-size 200)
+(load "plot")
 
 (initialize)
 
 (define stream (open-default-stream))
 (start-stream stream)
 
-(define buffer (make-buffer))
-(define buffer-count (seconds->buffers 5))
+(define (exit)
+  (stop-stream stream)
+  (close-stream stream)
+  (terminate)
+  (%exit))
