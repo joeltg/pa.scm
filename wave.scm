@@ -36,7 +36,7 @@
 (define wave:max (wave:selector max))
 
 (define (sine frequency)
-  (generate-wave sin tau))
+  (generate-wave sin tau frequency))
 
 (define (sawtooth frequency)
   (generate-wave (compose identity -1+) 2 frequency))
