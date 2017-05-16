@@ -5,13 +5,19 @@
 (define (frequency->cycle-length frequency)
   (clip (/ sample-rate frequency)))
 (define (generate-wave f period frequency)
-  (let ((cycle-length (frequency->cycle-length frequency))
-        (sampler (sample f period frequency)))
-    (let ((cycle (make-initialized-list cycle-length sampler)))
-      (set-cdr! (last-pair cycle) cycle)
-      (make-wave frequency cycle-length cycle))))
+  (let ((frequency (if (symbol? frequency) (cadr (assq frequency notes)) frequency)))
+    (let ((cycle-length (frequency->cycle-length frequency))
+          (sampler (sample f period frequency)))
+      (let ((cycle (make-initialized-list cycle-length sampler)))
+        (set-cdr! (last-pair cycle) cycle)
+        (make-wave frequency cycle-length cycle)))))
 
 (define-structure wave frequency cycle-length samples)
+
+(define (waves-sample waves)
+  (fold-left + 0 (map wave-sample waves)))
+(define (waves-next waves)
+  (map wave-next waves))
 (define (wave-sample wave)
   (car (wave-samples wave)))
 (define (wave-next wave)
@@ -30,7 +36,7 @@
 (define wave:max (wave:selector max))
 
 (define (sine frequency)
-  (generate-wave sin tau frequency))
+  (generate-wave sin tau))
 
 (define (sawtooth frequency)
   (generate-wave (compose identity -1+) 2 frequency))
@@ -41,10 +47,19 @@
 (define (triangle frequency)
   (generate-wave (compose -1+ *2 abs -1+) 2 frequency))
 
-(define null-wave 
+(define null-wave
   (make-wave (cycle-length->frequency 1) 1 (cons 1 (circular-list 0))))
 
 (define middle-c 261.6)
+
+; there's got to be a better way
+; (define lcm-error 2)
+; (define (wave:lcm . waves)
+;   (clip
+;     (reduce-left
+;       (real-lcm 2)
+;       1
+;       (map clip (map wave-cycle-length waves)))))
 
 (define (wave:lcm . waves)
   (apply lcm (map clip (map wave-cycle-length waves))))
@@ -106,7 +121,6 @@
 
 (define (chord . names)
   (let ((fs (map (lambda (name) (cadr (assq name notes))) names)))
-    (print fs)
     (wave:normalize 
       (reduce-left
         wave:+

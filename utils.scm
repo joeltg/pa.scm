@@ -75,5 +75,14 @@
 
 (define pi (* 2 (acos 0)))
 (define tau (* 4 (acos 0)))
-(define (mod a b)
+(define (real-mod a b)
   (- a (* b (floor (/ a b)))))
+
+(define (real-gcd a b e)
+  (let iter ((a (exact->inexact a)) (b (exact->inexact b)))
+    (if (< e b)
+      (iter b (real-mod a b))
+      a)))
+
+(define ((real-lcm e) a b)
+  (/ (* a b) (real-gcd a b e)))

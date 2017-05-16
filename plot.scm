@@ -19,7 +19,7 @@
     win))
 
 (define clear graphics-clear)
-  
+
 (define point-radius 3)
 (define (plot-point win x y)
   ; (graphics-operation win 'fill-circle x y point-radius)
