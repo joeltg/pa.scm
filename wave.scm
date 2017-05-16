@@ -5,12 +5,17 @@
 (define (frequency->cycle-length frequency)
   (clip (/ sample-rate frequency)))
 (define (generate-wave f period frequency)
-  (let ((frequency (if (symbol? frequency) (cadr (assq frequency notes)) frequency)))
+  (let ((frequency
+	 (if (symbol? frequency)
+	     (cadr (assq frequency notes))
+	     (exact->inexact frequency))))
     (let ((cycle-length (frequency->cycle-length frequency))
           (sampler (sample f period frequency)))
       (let ((cycle (make-initialized-list cycle-length sampler)))
         (set-cdr! (last-pair cycle) cycle)
         (make-wave frequency cycle-length cycle)))))
+
+(define ** square)
 
 (define-structure wave frequency cycle-length samples)
 
@@ -87,6 +92,7 @@
   (-1+ (* (- sample x1) (/ 2 (- x2 x1)))))
 (define (wave:normalize wave)
   ((wave:map (normalizer (wave:min wave) (wave:max wave))) wave))
+(define wave:norm wave:normalize)
 
 (define (wave-shim wave)
   (cond

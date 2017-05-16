@@ -1,5 +1,5 @@
-(define default-coordinate-limits (list 0 -1.5 256 1.5))
-(define default-window-size (list 1024 512))
+(define default-coordinate-limits (list 0 -2 1024 2))
+(define default-window-size (list 1516 512))
 (define default-background-color "white")
 (define default-foreground-color "black")
 (define (get-right-limit win)
