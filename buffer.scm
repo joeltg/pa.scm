@@ -31,7 +31,7 @@
 
 (define (play waves seconds)
   (let loop ((buffer (make-buffer))
-             (waves (if (wave? waves) (make-list output-channel-count waves) waves))
+             (waves (waves-shim waves))
              (buffers (seconds->buffers seconds)))
     (write-stream stream buffer)
     (if (< 0 buffers)

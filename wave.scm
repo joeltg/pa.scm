@@ -43,31 +43,27 @@
 
 (define null-wave 
   (make-wave (cycle-length->frequency 1) 1 (cons 1 (circular-list 0))))
-(define (wave? wave)
-  (and
-    (pair? wave)
-    (eq? 'wave (car wave))
-    (real? (wave-frequency wave))
-    (circular-list? (wave-samples wave))))
+
 (define middle-c 261.6)
 
 (define (wave:lcm . waves)
   (apply lcm (map clip (map wave-cycle-length waves))))
 
 (define ((wave:map f) . waves)
-  (let ((cycle-length (apply wave:lcm waves)))
-    (let iter ((cycle '()) (waves waves) (i cycle-length))
-      (if (< 0 i)
-        (iter
-          (cons (apply f (map wave-sample waves)) cycle)
-          (map wave-next waves)
-          (- i 1))
-        (let ((samples (reverse cycle)))
-          (set-cdr! (last-pair samples) samples)
-          (make-wave 
-            (cycle-length->frequency cycle-length) 
-            cycle-length
-            samples))))))
+  (let ((waves (map wave-shim waves)))
+    (let ((cycle-length (apply wave:lcm waves)))
+      (let iter ((cycle '()) (waves waves) (i cycle-length))
+        (if (< 0 i)
+          (iter
+            (cons (apply f (map wave-sample waves)) cycle)
+            (map wave-next waves)
+            (- i 1))
+          (let ((samples (reverse cycle)))
+            (set-cdr! (last-pair samples) samples)
+            (make-wave
+              (cycle-length->frequency cycle-length) 
+              cycle-length
+              samples)))))))
 
 (define wave:+ (wave:map +))
 (define wave:* (wave:map *))
@@ -76,6 +72,18 @@
   (-1+ (* (- sample x1) (/ 2 (- x2 x1)))))
 (define (wave:normalize wave)
   ((wave:map (normalizer (wave:min wave) (wave:max wave))) wave))
+
+(define (wave-shim wave)
+  (cond
+    ((wave? wave) wave)
+    ((symbol? wave) (sine (cadr (assq wave notes))))
+    ((number? wave) (sine wave))
+    (else (error "invalid wave"))))
+
+(define (waves-shim waves)
+  (if (list? waves)
+    (map wave-shim waves)
+    (make-list output-channel-count (wave-shim waves))))
 
 (define notes
   '((b 493.883)
@@ -98,6 +106,7 @@
 
 (define (chord . names)
   (let ((fs (map (lambda (name) (cadr (assq name notes))) names)))
+    (print fs)
     (wave:normalize 
       (reduce-left
         wave:+

@@ -83,17 +83,17 @@
       (error "stop-stream" (error-text err)))))
 
 (define (abort-stream stream)
-  (let ((err (c-call "Pa_AbortStream")))
+  (let ((err (c-call "Pa_AbortStream" stream)))
     (if (> 0 err)
       (error "write-stream" (error-text err)))))
 
 (define (close-stream stream)
-  (let ((err (c-call "Pa_CloseStream")))
+  (let ((err (c-call "Pa_CloseStream" stream)))
     (if (> 0 err)
       (error "close-stream" (error-text err)))))
 
 (define (stream-active? stream)
-  (let ((err (c-call "Pa_IsStreamActive")))
+  (let ((err (c-call "Pa_IsStreamActive" stream)))
     (if (> 0 err) 
       (error "stream-active?" (error-text err))
       (= 1 err))))
