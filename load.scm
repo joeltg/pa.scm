@@ -7,14 +7,13 @@
 (load "wave")
 (load "buffer")
 (load "plot")
+(load "circular-list")
 
 (initialize)
 
 (define stream (open-default-stream))
-(start-stream stream)
 
 (define (exit)
-  (stop-stream stream)
   (close-stream stream)
   (terminate)
   (%exit))

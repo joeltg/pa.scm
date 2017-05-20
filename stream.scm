@@ -2,7 +2,7 @@
 (define sample-format 1) ; paFloat32
 (define stream-flags 1) ; paClipOff
 (define frames-per-buffer 1024)
-(define input-channel-count 0)
+(define input-channel-count 2)
 (define output-channel-count 2)
 
 (define (make-stream-params)
@@ -108,3 +108,8 @@
   (let ((err (c-call "Pa_WriteStream" stream buffer frames-per-buffer)))
     (if (> 0 err) 
       (error "write-stream" (error-text err)))))
+
+(define (read-stream stream buffer)
+  (let ((err (c-call "Pa_ReadStream" stream buffer frames-per-buffer)))
+    (if (> 0 err)
+      (error "read-stream" (error-text err)))))
