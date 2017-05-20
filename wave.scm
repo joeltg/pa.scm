@@ -1,4 +1,4 @@
-;; Waves are streams. Yay!
+;; Waves are circular streams. Yay!
 
 (define (frequency->wavelength frequency)
   (/ sample-rate frequency))
@@ -11,7 +11,7 @@
   (f (+ start (/ (* i (- end start)) wavelength))))
 
 (define ((wave-maker f start end) frequency)
-  (let ((wavelength (frequency->wavelength frequency)))
+  (let ((wavelength (frequency->wavelength (frequency-shim frequency))))
     (list->stream
       (make-initialized-circular-list
         (clip wavelength)
@@ -41,12 +41,16 @@
 (define wave:+ (wave-operator +))
 (define wave:* (wave-operator *))
 
+(define (frequency-shim frequency)
+  (cond
+    ((symbol? frequency) (cadr (assq frequency notes)))
+    ((number? frequency) (exact->inexact frequency))
+    (else (error "invalid frequency"))))
+
 (define (wave-shim wave)
   (cond
     ((stream-pair? wave) wave)
-    ((symbol? wave) (sine (cadr (assq wave notes))))
-    ((number? wave) (sine wave))
-    (else (error "invalid wave"))))
+    (else (sine wave))))
 
 (define notes
   '((b 493.883)

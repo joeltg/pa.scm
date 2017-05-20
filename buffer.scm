@@ -49,17 +49,17 @@
 (define (listen seconds)
   (start-stream stream)
   (let loop ((buffer (make-buffer input-channel-count))
-             (waves (make-list input-channel-count '()))
+             (samples '())
              (buffers (seconds->buffers seconds)))
     (read-stream stream buffer)
     (if (< 0 buffers)
       (loop
         buffer
-        (cons (read-wave-buffer buffer) waves)
+        (cons (read-wave-buffer buffer) samples)
         (- buffers 1))
       (begin
         (stop-stream stream)
-        waves))))
+        samples))))
 
 (define (play seconds waves)
   (start-stream stream)
