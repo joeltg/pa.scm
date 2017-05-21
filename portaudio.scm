@@ -3,6 +3,13 @@
 (define float-size (c-sizeof "float"))
 (define pointer-size (c-sizeof "*"))
 
+(define sample-rate 44100)
+(define sample-format 1) ; paFloat32
+(define stream-flags 1) ; paClipOff
+(define frames-per-buffer 1024)
+(define input-channel-count 2)
+(define output-channel-count 2)
+
 (define (initialize)
   (c-call "Pa_Initialize"))
 (define (terminate)

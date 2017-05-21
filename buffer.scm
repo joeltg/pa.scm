@@ -37,40 +37,13 @@
     waves
     frame-iterator))
 
-(define ((read-wave-channel buffer frame) channel)
-  (c-> (buffer-ref buffer frame channel output-channel-count) "float"))
-
-(define ((read-wave-frame buffer) frame)
-  (map
-    (read-wave-channel buffer frame)
-    input-channel-iterator))
-
-(define (read-wave-buffer buffer)
-  (map
-    (read-wave-frame buffer)
-    frame-iterator))
-
-(define (listen seconds)
-  (start-stream stream)
-  (let loop ((buffer (make-buffer input-channel-count))
-             (samples '())
-             (buffers (seconds->buffers seconds)))
-    (read-stream stream buffer)
-    (if (< 0 buffers)
-      (loop
-        buffer
-        (cons (read-wave-buffer buffer) samples)
-        (- buffers 1))
-      (begin
-        (stop-stream stream)
-        samples))))
-
 ;; Input streams are also circular.
 ;; The "tail" of (input-stream) is (essentially) a promise of (delay (input-stream)).
 ;; The stream is cons-ed up by making delays of individual samples.
 ;; So the stream has a circumference of the buffer size.
 ;; "oh damn"
 (define (input-stream)
+  (if (stream-stopped? stream) (start-stream stream))
   (let pool ((buffer (make-buffer input-channel-count)))
     (read-stream stream buffer)
     (alien-byte-increment! buffer (buffer-size input-channel-count) 'float)
@@ -86,6 +59,7 @@
                 (force circle)))))))))
 
 (define (output-stream circle)
+  (if (stream-stopped? stream) (start-stream stream))
   (let pool ((buffer (make-buffer output-channel-count)) (circle circle))
     (let iter ((i 0) (circle circle))
       (let loop ((samples (stream-car circle)))

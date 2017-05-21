@@ -6,7 +6,7 @@ I've only tested this on Linux.
 
 First build and install PortAudio (http://portaudio.com/docs/v19-doxydocs/compile_mac_coreaudio.html for Mac or http://portaudio.com/docs/v19-doxydocs/compile_linux.html for Linux).
 
-Then cd into the `pa.scm` directory and build the MIT Scheme bindings:
+Then cd into the `portaudio.scm` directory and build the MIT Scheme bindings:
 
 ```bash
 make
@@ -15,14 +15,21 @@ sudo make install
 
 Then load PortAudio with scheme's FFI and play around:
 ```scheme
-(load-option 'ffi)
-(c-include "portaudio")
-
 (load "load.scm")
-(play 'a 3)
 (define win (window))
-(plot win 'a)
-(plot win 'c "red")
-(plot win (wave:+ 'a 'c) "blue")
-(plot win (wave:normalize (wave:+ 'a 'c)) "orange")
+
+;; Input streams
+(plot win (input-stream) "black" 50 25)
+
+;; Output streams
+(clear win)
+
+(define a (sine 'a))
+(define c (sine 'c))
+(plot win (splice a c) "black" 1 0.5)
+
+(define ac (splice (wave:+ a c)))
+(plot win ac "red" 1 0.5)
+
+(output-stream ac)
 ```
