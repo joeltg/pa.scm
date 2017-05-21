@@ -1,6 +1,3 @@
-(define env (the-environment))
-(define default? default-object?)
-
 (define (clip float)
   (inexact->exact (ceiling float)))
 
@@ -16,57 +13,19 @@
 (define ((compose . fs) arg)
   (fold-right fapply arg fs))
 
-(define (find-min selector elements)
-  (assert (not (null? elements)))
-  (let iter ((elements (cdr elements)) 
-             (best elements) 
-             (best-score (selector (car elements))))
-    (if (pair? elements)
-    (let ((score (selector (car elements))))
-      (if (< score best-score)
-        (iter (cdr elements) elements score)
-        (iter (cdr elements) best best-score)))
-    (car best))))
-
-(define (find-max selector elements)
-  (assert (not (null? elements)))
-  (let iter ((elements (cdr elements)) 
-             (best elements) 
-             (best-score (selector (car elements))))
-    (if (pair? elements)
-    (let ((score (selector (car elements))))
-      (if (> score best-score)
-        (iter (cdr elements) elements score)
-        (iter (cdr elements) best best-score)))
-    (car best))))
-
 (define (print . args)
   (let ((string (open-output-string)))
     (for-each 
       (lambda (arg)
-        (cond 
-          ((wave? arg)
-            (write-string "wave: " string)
-            (write (wave-frequency arg) string)
-            (write-char #\space string)
-            (write (list-head (wave-samples arg) 10) string))
+        (cond
           ((circular-list? arg)
             (write-string "circular: " string)
             (write (list-head arg 10) string))
           (else (write arg string)))
         (write-char #\space string))
       args)
+    (write-char #\newline string)
     (write-string (get-output-string string))))
-
-(define (circular-length wave)
-  (let loop ((l1 wave) (l2 wave) (count 1))
-    (if (pair? l1)
-      (let ((l1 (cdr l1)))
-        (cond
-          ((eq? l1 l2) count)
-          ((pair? l1) (loop (cdr l1) (cdr l2) (+ count 1)))
-          (else (error "invalid circular list"))))
-      0)))
 
 (define (& alien)
   (let ((pointer (malloc pointer-size `(* ,(alien/ctype alien)))))
@@ -75,14 +34,3 @@
 
 (define pi (* 2 (acos 0)))
 (define tau (* 4 (acos 0)))
-(define (real-mod a b)
-  (- a (* b (floor (/ a b)))))
-
-(define (real-gcd a b e)
-  (let iter ((a (exact->inexact a)) (b (exact->inexact b)))
-    (if (< e b)
-      (iter b (real-mod a b))
-      a)))
-
-(define ((real-lcm e) a b)
-  (/ (* a b) (real-gcd a b e)))

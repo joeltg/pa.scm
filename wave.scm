@@ -19,13 +19,13 @@
 
 (define ** square)
 
-(define wave-sample stream-car)
-(define wave-next stream-cdr)
-
 (define sine (wave-maker sin 0 tau))
 (define sawtooth (wave-maker identity -1 1))
 (define triange (wave-maker (compose -1+ abs) -2 2))
 (define square (wave-maker (compose -1+ *2 round) 0 1))
+
+(define (splice . waves)
+  (apply stream-map list waves))
 
 (define null-wave (list->stream (circular-list 0)))
 

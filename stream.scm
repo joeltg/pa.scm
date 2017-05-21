@@ -1,10 +1,3 @@
-(define sample-rate 44100)
-(define sample-format 1) ; paFloat32
-(define stream-flags 1) ; paClipOff
-(define frames-per-buffer 1024)
-(define input-channel-count 2)
-(define output-channel-count 2)
-
 (define (make-stream-params)
   (malloc stream-params-size 'PaStreamParameters))
 
@@ -34,8 +27,8 @@
   (let ((stream-pointer (malloc pointer-size '(* PaStream)))
         (stream-callback null-alien)
         (user-data null-alien)
-        ; (stream-callback (if (default? kappa) null-alien (c-callback "PaStreamCallback")))
-        ; (user-data (if (default? kappa) null-alien (c-callback kappa)))
+        ; (stream-callback (if (default-object? kappa) null-alien (c-callback "PaStreamCallback")))
+        ; (user-data (if (default-object? kappa) null-alien (c-callback kappa)))
         )
     (define err
       (c-call "Pa_OpenDefaultStream" 
@@ -55,8 +48,8 @@
   (let ((stream-pointer (malloc pointer-size '(* PaStream)))
         (stream-callback null-alien)
         (user-data null-alien)
-        ; (stream-callback (if (default? kappa) null-alien (c-callback "PaStreamCallback")))
-        ; (user-data (id (default? kappa) null-alien (c-callback kappa)))
+        ; (stream-callback (if (default-object? kappa) null-alien (c-callback "PaStreamCallback")))
+        ; (user-data (id (default-object? kappa) null-alien (c-callback kappa)))
         )
     (define err
       (c-call "Pa_OpenStream"
@@ -68,7 +61,7 @@
         stream-flags
         stream-callback
         user-data))
-    (if (> 0 err) 
+    (if (> 0 err)
       (error "make-stream" (error-text err))
       (c-> stream-pointer "*"))))
 
