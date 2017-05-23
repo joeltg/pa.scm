@@ -5,27 +5,23 @@
 (load "utils")
 (load "circular-list")
 
-(load "stream")
-(load "wave")
-
-(load "buffer")
-(load "plot")
-
-;; These are untouchable constants
-(define device-info-size (c-sizeof "PaDeviceInfo"))
-(define stream-params-size (c-sizeof "PaStreamParameters"))
-(define float-size (c-sizeof "float"))
-(define pointer-size (c-sizeof "*"))
-
 ;; These are sensible defaults
 (define sample-rate 44100)
-(define sample-format 1)
+(define sample-format 2147483649)
 (define stream-flags 1)
 (define frames-per-buffer 1024)
 
 ;; These are totally up to you
 (define input-channel-count 1)
 (define output-channel-count 1)
+
+;; Real Things (TM)
+(load "types")
+(load "stream")
+(load "wave")
+
+(load "buffer")
+(load "plot")
 
 
 (define (initialize)
@@ -43,14 +39,36 @@
     device))
 
 ;; Buffers
-(define (buffer-size channel-count)
-  (* float-size frames-per-buffer channel-count))
 
-(define (make-buffer channel-count)
-  (malloc (buffer-size channel-count) 'float))
+(define (buffer->vector buffer vector type)
+  (let ((k (vector-length vector)) (size (type-size type)) (peek (type-peek type)))
+    (let iter ((i (-1+ k)) (buffer (alien-byte-increment! buffer (* size (-1+ k)))))
+      (vector-set! vector i (peek buffer))
+      (if (> i 0) (iter (-1+ i) (alien-byte-increment! buffer (- size))) vector))))
 
-(define (buffer-ref buffer index)
-  (c-> (alien-byte-increment buffer (* float-size index) 'float) "float"))
+(define (vector->buffer vector buffer type)
+  (let ((k (vector-length vector)) (size (type-size type)) (poke (type-poke type)))
+    (let iter ((i (-1+ k)) (buffer (alien-byte-increment! buffer (* size (-1+ k)))))
+      (poke buffer (vector-ref vector i))
+      (if (> i 0) (iter (-1+ i) (alien-byte-increment! buffer (- size))) buffer))))
+
+(define float-buffer (malloc (* float-size frames-per-buffer) 'float))
+(define pointer-buffer (& float-buffer))
+
+(define float-vector (make-vector frames-per-buffer))
+(define pointer-vector (vector float-vector))
+
+(define (buffer? v)
+  (and (vector? v) (= frames-per-buffer (vector-length v))))
+
+;; I/O
+(define (output stream)
+  (vector->buffer float-vector float-buffer 'float)
+  (write-stream stream pointer-buffer))
+
+(define (input stream)
+  (read-stream stream pointer-buffer)
+  (buffer->vector float-buffer float-vector 'float))
 
 ;; Errors
 (define (error-text err)

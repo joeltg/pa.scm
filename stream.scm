@@ -80,7 +80,7 @@
 (define (abort-stream stream)
   (let ((err (c-call "Pa_AbortStream" stream)))
     (if (> 0 err)
-      (error "write-stream" (error-text err)))))
+      (error "abort-stream" (error-text err)))))
 
 (define (close-stream stream)
   (let ((err (c-call "Pa_CloseStream" stream)))
@@ -99,12 +99,12 @@
       (error "stream-stopped?" (error-text err))
       (= 1 err))))
 
-(define (write-stream stream buffer)
-  (let ((err (c-call "Pa_WriteStream" stream buffer frames-per-buffer)))
+(define (write-stream stream buffer #!optional frame-count)
+  (let ((err (c-call "Pa_WriteStream" stream buffer (default frame-count frames-per-buffer))))
     (if (> 0 err) 
       (error "write-stream" (error-text err)))))
 
-(define (read-stream stream buffer)
-  (let ((err (c-call "Pa_ReadStream" stream buffer frames-per-buffer)))
+(define (read-stream stream buffer #!optional frame-count)
+  (let ((err (c-call "Pa_ReadStream" stream buffer (default frame-count frames-per-buffer))))
     (if (> 0 err)
       (error "read-stream" (error-text err)))))

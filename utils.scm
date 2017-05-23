@@ -13,6 +13,9 @@
 (define ((compose . fs) arg)
   (fold-right fapply arg fs))
 
+(define (default try catch)
+  (if (default-object? try) catch try))
+
 (define (print . args)
   (let ((string (open-output-string)))
     (for-each 

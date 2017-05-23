@@ -4,7 +4,7 @@ MIT Scheme bindings for PortAudio
 ## Building and Installation
 I've only tested this on Linux.
 
-First build and install PortAudio (http://portaudio.com/docs/v19-doxydocs/compile_mac_coreaudio.html for Mac or http://portaudio.com/docs/v19-doxydocs/compile_linux.html for Linux).
+First build and install PortAudio (for [Mac](http://portaudio.com/docs/v19-doxydocs/compile_mac_coreaudio.html) or [Linux](http://portaudio.com/docs/v19-doxydocs/compile_linux.html)).
 
 Then cd into the `portaudio.scm` directory and build the MIT Scheme bindings:
 
@@ -36,7 +36,7 @@ Then load PortAudio and play around:
 
 ## Usage
 
-See http://portaudio.com/docs/v19-doxydocs/api_overview.html
+See the [PortAudio API documentation](http://portaudio.com/docs/v19-doxydocs/api_overview.html)
 
 PortAudio can be used synchronously with read-stream and write-stream
 or asynchronously with read and write callbacks.

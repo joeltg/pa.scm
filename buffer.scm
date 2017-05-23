@@ -7,9 +7,9 @@
   (clip (/ (* seconds sample-rate) frames-per-buffer)))
 
 (define ((write-wave-channel buffer frame) wave channel)
-  (c->= 
+  (c->=
     (buffer-ref buffer frame channel output-channel-count) 
-    "float" 
+    "float"
     (wave-sample wave))
   (wave-next wave))
 
