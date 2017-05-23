@@ -1,8 +1,8 @@
 (define (clip float)
   (inexact->exact (ceiling float)))
 
-(define (fapply f arg)
-  (f arg))
+(define (fapply f . args)
+  (apply f args))
 
 (define (identity a)
   a)

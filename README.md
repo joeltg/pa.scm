@@ -13,9 +13,9 @@ make
 sudo make install
 ```
 
-Then load PortAudio with scheme's FFI and play around:
+Then load PortAudio and play around:
 ```scheme
-(load "load.scm")
+(load "portaudio.scm")
 (define win (window))
 
 ;; Input streams
@@ -32,4 +32,32 @@ Then load PortAudio with scheme's FFI and play around:
 (plot win ac "red" 1 0.5)
 
 (output-stream ac)
+```
+
+## Usage
+
+See http://portaudio.com/docs/v19-doxydocs/api_overview.html
+
+PortAudio can be used synchronously with read-stream and write-stream
+or asynchronously with read and write callbacks.
+Callbacks are messy and the FFI trampolines are slow; stick to sync for now.
+
+If you desperately want to use callbacks, switch the commenting in `stream.scm` 
+and in `portaudio.cdecl` and rebuild the whole project.
+Then you can pass callbacks (procedures of five arguments) into `(open-stream)`.
+
+Synchonous read/write:
+```
+(define stream (open-default-stream))
+(start-stream stream)
+...
+(write-stream stream buffer)
+(read-stream stream)
+```
+Asynchronous read/write with callbacks:
+```
+(define (kappa input output frame-count time-info status-flags)
+  ...)
+(define stream (open-default-stream kappa))
+(start-stream)
 ```

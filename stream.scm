@@ -25,11 +25,12 @@
 
 (define (open-default-stream #!optional kappa)
   (let ((stream-pointer (malloc pointer-size '(* PaStream)))
+        ;; Sync
         (stream-callback null-alien)
-        (user-data null-alien)
-        ; (stream-callback (if (default-object? kappa) null-alien (c-callback "PaStreamCallback")))
-        ; (user-data (if (default-object? kappa) null-alien (c-callback kappa)))
-        )
+        (user-data null-alien))
+        ;; Async
+        ; (stream-callback (c-callback "PaStreamCallback"))
+        ; (user-data (c-callback kappa)))
     (define err
       (c-call "Pa_OpenDefaultStream" 
         stream-pointer
@@ -46,11 +47,12 @@
 
 (define (open-stream input-params output-params #!optional kappa)
   (let ((stream-pointer (malloc pointer-size '(* PaStream)))
+        ;; Sync
         (stream-callback null-alien)
-        (user-data null-alien)
-        ; (stream-callback (if (default-object? kappa) null-alien (c-callback "PaStreamCallback")))
-        ; (user-data (id (default-object? kappa) null-alien (c-callback kappa)))
-        )
+        (user-data null-alien))
+        ;; Async
+        ; (stream-callback (c-callback "PaStreamCallback"))
+        ; (user-data (c-callback kappa)))
     (define err
       (c-call "Pa_OpenStream"
         stream-pointer

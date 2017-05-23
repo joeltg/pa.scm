@@ -1,5 +1,3 @@
-;; Waves are circular streams. Yay!
-
 (define (frequency->wavelength frequency)
   (/ sample-rate frequency))
 (define f->w frequency->wavelength)
@@ -10,12 +8,10 @@
 (define ((sample f start end wavelength) i)
   (f (+ start (/ (* i (- end start)) wavelength))))
 
-(define ((wave-maker f start end) frequency)
-  (let ((wavelength (frequency->wavelength (frequency-shim frequency))))
-    (list->stream
-      (make-initialized-circular-list
-        (clip wavelength)
-        (sample f start end wavelength)))))
+(define ((wave-maker f s e) frequency)
+  (let ((w (f->w (frequency-shim frequency))))
+    (let ((c (make-initialized-circular-list (clip w) (sample f s e w))))
+      (lambda () (car (set! c (cdr c)))))))
 
 (define ** square)
 
@@ -24,22 +20,13 @@
 (define triange (wave-maker (compose -1+ abs) -2 2))
 (define square (wave-maker (compose -1+ *2 round) 0 1))
 
-(define (splice . waves)
-  (apply stream-map list waves))
-
-(define null-wave (list->stream (circular-list 0)))
+(define (null-wave)
+  0)
 
 (define middle-c 261.6)
 
-(define ((wave-operator operator) wave . waves)
-  (apply stream-map
-    (lambda samples
-      (/ (apply operator samples) (+ 1 (length waves))))
-    wave
-    waves))
-
-(define wave:+ (wave-operator +))
-(define wave:* (wave-operator *))
+(define ((wave:+ . waves))
+  (/ (apply + (map fapply waves)) (length waves)))
 
 (define (frequency-shim frequency)
   (cond
@@ -49,7 +36,7 @@
 
 (define (wave-shim wave)
   (cond
-    ((stream-pair? wave) wave)
+    ((procedure? wave) wave)
     (else (sine wave))))
 
 (define notes

@@ -175,8 +175,10 @@
   (sampleRate double)
   (framesPerBuffer ulong)
   (streamFlags PaStreamFlags)
+  ;; Sync
   (streamCallback (* PaStreamCallback))
   (userData (* void)))
+  ;; Async
   ; (CALLBACK (* PaStreamCallback))
   ; (ID (* void)))
 
@@ -188,16 +190,19 @@
   (sampleFormat PaSampleFormat)
   (sampleRate double)
   (framesPerBuffer ulong)
+  ;; Sync
   (streamCallback (* PaStreamCallback))
   (userData (* void)))
+  ;; Async
   ; (CALLBACK (* PaStreamCallback))
   ; (ID (* void)))
 
-;; Very Important
+;; Async
 ; (callback void
 ;   PaStreamFinishedCallback
 ;   (ID (* void)))
 
+;; Async
 ; (callback int
 ;   PaStreamCallback
 ;   (input (* (const void)))

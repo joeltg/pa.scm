@@ -1,16 +1,46 @@
-(load-option 'ffi)
-(c-include "portaudio")
-
-(load "utils")
-
 (load "portaudio")
-(load "stream")
-(load "wave")
-(load "buffer")
-(load "plot")
-(load "circular-list")
 
 (initialize)
+(define sample (sine 'a))
+(define win (window))
+(define x-scale 50)
+(define y-scale 25)
+(define limit (* x-scale (third (get-device-coordinate-limits win))))
+(graphics-set-coordinate-limits win 0 -1 limit 1)
+(define frame 0)
+(define (kappa input output frame-count time-info status-flags)
+  ; (print
+  ;   (c-> input "float")
+  ;   (c-> (alien-byte-increment input (- (buffer-size input-channel-count) float-size) 'float) "float"))
+  (define x-offset (modulo (* frame-count (set! frame (1+ frame))) limit))
+  (let iter ((i 0) (buffer input))
+    (if (< i frame-count)
+      (let loop ((j 0) (buffer buffer))
+        (if (< j input-channel-count)
+          (begin
+            ; (graphics-draw-point win
+            ;   (+ i x-offset)
+            ;   (* y-scale (c-> buffer "float")))
+            (loop (1+ j) (alien-byte-increment input float-size 'float)))
+          (iter (1+ i) buffer)))
+      0)))
+
+    ; (let loop ((j 1))
+    ;   (if (< j input-channel-count)
+    ;     (loop (1+ j))
+    ;     (if (< i frame-count)
+    ;       (iter (1+ i))
+    ;       0)))
+
+    ; (let loop ((j 1))
+    ;   (c->= output "float" (sample))
+    ;   (alien-byte-increment! output float-size 'float)
+    ;   (if (< j output-channel-count)
+    ;     (loop (1+ j))
+    ;     (if (< i frame-count)
+    ;       (iter (1+ i))
+    ;       0)))
+    ; ))
 
 (define stream (open-default-stream))
 
@@ -18,3 +48,4 @@
   (close-stream stream)
   (terminate)
   (%exit))
+

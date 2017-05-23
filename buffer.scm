@@ -3,18 +3,6 @@
 (define output-channel-iterator (iota output-channel-count))
 (define input-channel-iterator (iota input-channel-count))
 
-(define (buffer-size channel-count)
-  (* float-size frames-per-buffer channel-count))
-
-(define (make-buffer channel-count)
-  (malloc (buffer-size channel-count) 'float))
-
-(define (buffer-ref buffer frame channel channel-count)
-  (alien-byte-increment
-    buffer
-    (* float-size (+ channel (* channel-count frame)))
-    'float))
-
 (define (seconds->buffers seconds)
   (clip (/ (* seconds sample-rate) frames-per-buffer)))
 
@@ -58,21 +46,32 @@
                 (iter (-1+ i) circle)
                 (force circle)))))))))
 
+(define wave-sample car)
+(define wave-next cdr)
+
+(define (wave-sample w)
+  (/ (apply + (map car w)) (length w)))
+
+(define (wave-next w)
+  (map cdr w))
+
 (define (output-stream circle)
   (if (stream-stopped? stream) (start-stream stream))
   (let pool ((buffer (make-buffer output-channel-count)) (circle circle))
-    (let iter ((i 0) (circle circle))
-      (let loop ((samples (stream-car circle)))
-        (c->= buffer "float" (car samples))
-        (alien-byte-increment! buffer float-size 'float)
-        (if (pair? (cdr samples))
-          (loop (cdr samples))
-          (if (< i frames-per-buffer)
-            (iter (1+ i) (stream-cdr circle))
-            (begin
-              (alien-byte-increment! buffer (- (buffer-size output-channel-count)) 'float)
-              (write-stream stream buffer)
-              (pool buffer (stream-cdr circle)))))))))
+    (let iter ((i 1) (circle circle))
+      (let loop ((j 1) (samples (wave-sample circle)))
+        (let ((sample (if (pair? samples) (car samples) samples))
+              (lampes (if (pair? samples) (cdr samples) samples)))
+          (c->= buffer "float" sample)
+          (alien-byte-increment! buffer float-size 'float)
+          (if (< j input-channel-count)
+            (loop (1+ j) lampes)
+            (if (< i frames-per-buffer)
+              (iter (1+ i) (wave-next circle))
+              (begin
+                (alien-byte-increment! buffer (- (buffer-size output-channel-count)) 'float)
+                (write-stream stream buffer)
+                (pool buffer (wave-next circle))))))))))
 
 (define (play seconds waves)
   (start-stream stream)
