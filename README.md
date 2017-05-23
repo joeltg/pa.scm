@@ -1,4 +1,4 @@
-# pa.scm
+# portaudio.scm
 MIT Scheme bindings for PortAudio
 
 ## Building and Installation
