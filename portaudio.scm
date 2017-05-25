@@ -18,10 +18,6 @@
 ;; Real Things (TM)
 (load "types")
 (load "stream")
-(load "wave")
-
-(load "buffer")
-(load "plot")
 
 
 (define (initialize)
@@ -39,8 +35,7 @@
     device))
 
 ;; Buffers
-
-(define (buffer->vector buffer vector type)
+(define (buffer->vector buffer type vector)
   (let ((k (vector-length vector)) (size (type-size type)) (peek (type-peek type)))
     (let iter ((i (-1+ k)) (buffer (alien-byte-increment! buffer (* size (-1+ k)))))
       (vector-set! vector i (peek buffer))
@@ -68,7 +63,7 @@
 
 (define (input stream)
   (read-stream stream pointer-buffer)
-  (buffer->vector float-buffer float-vector 'float))
+  (buffer->vector float-buffer 'float float-vector))
 
 ;; Errors
 (define (error-text err)

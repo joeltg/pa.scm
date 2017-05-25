@@ -7,3 +7,4 @@ portaudio-shim.c
 portaudio-shim.o
 portaudio-shim.so
 portaudio-types.bin
+.vscode
